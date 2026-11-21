@@ -1,0 +1,8 @@
+numpy
+scipy
+pandas
+scikit-learn
+matplotlib
+h5py      # reading MATLAB-exported HDF5
+xdas      # reading FEBUS A1 files (real data only)
+pytest    # test suite (python -m pytest tests)

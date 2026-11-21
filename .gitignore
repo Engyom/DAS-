@@ -1,0 +1,50 @@
+# --- Python / tooling caches ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Claude Code: keep the shared project settings, never personal ones ---
+.claude/settings.local.json
+.claude/*.local.*
+
+# --- Secrets (never commit) ---
+.env
+.env.*
+*.pem
+*.key
+credentials*.json
+secrets*
+
+# --- Simulated recordings: large (~1.7 GB), regenerate with MATLAB ---
+# (see README, "Simulated dataset"). The truth manifest is kept.
+sim_scratch/sim_out/*.h5
+*.h5
+!das_height_v2/tests/**/*.h5
+
+# --- Real DAS recordings: never commit (size, consent, data protection) ---
+*.hdf5
+*.tdms
+*.sgy
+data_real/
+real_data/
+
+# --- Throw-away outputs ---
+roundtrip_test.h5
+*.log
+*.tmp

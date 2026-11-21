@@ -1,0 +1,6 @@
+{
+  "passes": 180,
+  "step_length_MAE_cm": 0.2542507031172515,
+  "step_length_bias_cm": -0.04719720001015281,
+  "step_length_max_abs_cm": 0.9190492512449078
+}

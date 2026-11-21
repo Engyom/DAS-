@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "defaultMode": "plan",
+    "deny": [
+      "Edit(/matlab/make_height_dataset.m)"
+    ]
+  }
+}
