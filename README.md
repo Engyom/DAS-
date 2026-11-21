@@ -4,8 +4,8 @@ Graduation project, Princess Nourah bint Abdulrahman University (PNU),
 Communications Engineering:
 **"AI-Based Distributed Optical Fiber Sensing (DOFS) Network for Autonomous
 Perimeter Security and Real-Time Intruder Detection and Tracking: Hajj
-Season Use Case"**. Supervisor: Dr. Yazan M. Allawi. Planned interrogator:
-FEBUS Optics A1 (not yet available to the team).
+Season Use Case"**. Planned interrogator: FEBUS Optics A1 (not yet
+available to the team).
 
 > **STATUS: SIMULATION BASELINE, frozen 21 Nov 2026.** Every result in this
 > repository comes from **simulated** DAS recordings. Nothing here has been
@@ -164,13 +164,13 @@ compare with the committed files using `git diff --stat sim_scratch`.
 **C. System figure** (needs the regenerated `.h5` files). Run from the
 **repository root**:
 ```bash
-python sim_scratch/show_system.py --project das_height_v2 --pass S01_d1.0_r1 --no-show
+python sim_scratch/show_system.py --pass S01_d1.0_r1 --no-show
 ```
 This writes `sim_scratch/system_view_S01_d1.0_r1.png`: panel 1 signal and
 detections, panel 2 walking-line fit, panel 3 ridge LOSO results from
 `results/predictions.csv`, panel 4 summary. Omit `--no-show` to open the
-window. The `--project` option is needed because the script's default path
-is the original author's Windows folder.
+window. The script finds `das_height_v2/` next to `sim_scratch/` by itself
+(`--project` overrides it).
 
 **Frozen v2.1 results (SIMULATED, 30 subjects, 180 passes, subject level):**
 
@@ -228,3 +228,8 @@ Do not edit `matlab/make_height_dataset.m` (MATLAB changes go in new files).
 Never use labels (`height_cm`, `true_step_length_m`) as model inputs. Keep
 LOSO with all fitting inside the training fold. Never present simulated
 numbers as accuracy.
+
+## Licence
+No licence has been chosen yet, so default copyright applies: the code can
+be viewed, but reuse needs the authors' permission. A licence will be added
+once the project team agrees on one.

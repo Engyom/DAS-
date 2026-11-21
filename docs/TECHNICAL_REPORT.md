@@ -236,8 +236,7 @@ Tests: 22/22 pass, including 3 regression tests for the fixes.
    tests.
 9. **Weight is out of scope:** the simulation uses a constant 70 kg, and no
    weight experiment is included here.
-10. **The `show_system.py` default project path** is the original author's
-    Windows path; pass `--project das_height_v2` (see README).
+10. `show_system.py` needs the regenerated `.h5` files (panels 1, 2 and 4).
 
 ## 12. Status: implemented, simulated, planned
 | Item | Status |
@@ -254,7 +253,7 @@ Tests: 22/22 pass, including 3 regression tests for the fixes.
 | Real-time streaming (FEBUS ZeroMQ) | Planned |
 
 ## 13. Workspace note on how v2.1 was verified
-The v2.1 features and results were produced from Yomna's 180 MATLAB-written
+The v2.1 features and results were produced from the author's 180 MATLAB-written
 HDF5 files, in a Linux environment without `h5py`. Those files were read
 through `io_sim.py` using a minimal read-only HDF5 stand-in. It was checked
 by reproducing the v2 features generated on Windows with real `h5py`

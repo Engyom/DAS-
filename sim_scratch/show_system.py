@@ -9,9 +9,9 @@ Panels
   3. Height estimated by ridge (LOSO) vs measured height, every subject; this one highlighted
   4. Summary for this pass
 
-Run (from the das_height_v2 folder, with its .venv):
-  .venv\\Scripts\\python.exe C:\\Users\\yomna\\Documents\\sim_scratch\\show_system.py
-  .venv\\Scripts\\python.exe C:\\Users\\yomna\\Documents\\sim_scratch\\show_system.py --pass S07_d2.0_r1
+Run from the repository root, with the das_height_v2 virtual environment active:
+  python sim_scratch/show_system.py
+  python sim_scratch/show_system.py --pass S07_d2.0_r1
 
 Reads only; saves one PNG next to this script.
 """
@@ -19,7 +19,7 @@ import argparse, os, sys
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_PROJECT = r"C:\Users\yomna\Documents\das_height_v2"
+DEFAULT_PROJECT = os.path.join(os.path.dirname(HERE), "das_height_v2")  # sibling folder
 
 
 def load(args):
