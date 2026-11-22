@@ -279,3 +279,14 @@ Approved by the project author. v2.1 stays in Git (tag v2.1-sim-baseline).
   S01_d1.0_r1.h5 still gives 168.0 cm (+/- 7.2).
 - Tests: +4 (dominance filter, plausibility QC, fill-ratio QC, estimate_height flag);
   test_integration now checks the v2.2 models. Full suite: 50 passed.
+
+# Height planning model (22 Nov 2026, SIMULATED + ASSUMED)
+
+New folder `exploratory/height_planning/`; pipeline unchanged. A gait-level
+planning model (walk ratio constant per person, scaling with stature, plus a
+person-specific style sigma_u) for Phase B: the published uncompensated r is
+compatible with sigma_u from 3 % to 12 %, so only a speed-measuring experiment
+can settle it; one self-selected pass + cadence is nearly as good as a
+six-speed curve; proving r > 0.45 needs ~20 people at sigma_u = 3 % and 40+ at
+5 %. Background: the "Height from Gait with DAS" document.
+- `tests/test_height_planning.py`: 4 tests. Full suite: 54 passed.

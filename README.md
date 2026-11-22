@@ -143,7 +143,7 @@ with leave-one-subject-out evaluation (about 1 minute) and writes
 ```bash
 python -m pytest tests
 ```
-Expected: **50 passed** (25 pipeline + 10 integration + 6 load study + 9 gait tooling). They need no MATLAB and no data files.
+Expected: **54 passed** (25 pipeline + 10 integration + 6 load study + 9 gait tooling + 4 height planning). They need no MATLAB and no data files.
 Simulated planning study (not a test):
 `python tests/synthetic_study.py 30 1.0 1.50 1.80 0.02`.
 
@@ -191,7 +191,7 @@ they are **not** real-world accuracy.
 cadence_spm, stride_m, direction, model_version, data_label), models saved as JSON
 (trained on the 180 SIMULATED passes), and stubs for `classify_event` and
 `profile_person`. Details, limits and the MATLAB example: `das_height_v2/integration/README.md`.
-Tests: `python -m pytest tests` (50 passed).
+Tests: `python -m pytest tests` (54 passed).
 
 ## Phase A analysis tooling (T9)
 `das_height_v2/gait_eval/` matches DAS footsteps to ground-truth contacts and computes
@@ -200,6 +200,11 @@ fixed before data collection. It is checked on simulated passes with known truth
 (SIMULATED, not accuracy). See its README for the findings to act on before Phase A.
 The same folder holds the T10 sensitivity study (channel spacing, noise, lane distance,
 cadence), which found two v2.1 failure modes and checks candidate fixes for a v2.2.
+
+## Height planning model (22 Nov 2026)
+`das_height_v2/exploratory/height_planning/` is a SIMULATED + ASSUMED planning tool for
+Phase B: how much stature information a speed-compensated gait model could recover and
+how many participants are needed. See its README.
 
 ## v2.2 (22 Nov 2026)
 Fixes from T10, approved by the project author: a dominance filter in footstep

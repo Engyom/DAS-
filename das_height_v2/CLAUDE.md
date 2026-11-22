@@ -14,6 +14,7 @@ analysis (exploratory/), never as a weight model.
 - integration/                 : interface for the team's MATLAB system (estimate_height,
                                  saved SIMULATED models, stubs); imports das_height, never changes it
 - exploratory/load_identifiability/ : T11 weight/load identifiability study (no model trained)
+- exploratory/height_planning/ : Phase B height planning model (SIMULATED + ASSUMED, no DAS signal)
 - gait_eval/                    : T9 Phase A analysis tooling (matching, Bland-Altman, repeatability)
                                  and T10 sensitivity study (sensitivity.py, results_sensitivity/)
 
