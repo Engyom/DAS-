@@ -10,7 +10,7 @@ it imports it. Everything here is trained and tested on **SIMULATED** data only.
 | `fit_sim_models.py` | Fits the models on all 180 simulated passes and saves them as JSON |
 | `models/steplength_linear.json` | Default model: height = a + b x step length |
 | `models/ridge.json` | Optional model on all three features (same as the v2.1 ridge full fit) |
-| `matlab_example.m` | How to call it from MATLAB (**untested in MATLAB**) |
+| `matlab_example.m` | How to call it from MATLAB (tested on R2026b + Python 3.14, 22 Nov 2026) |
 
 ## estimate_height output (11 fields)
 
