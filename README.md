@@ -143,7 +143,7 @@ with leave-one-subject-out evaluation (about 1 minute) and writes
 ```bash
 python -m pytest tests
 ```
-Expected: **31 passed** (22 pipeline + 9 integration). They need no MATLAB and no data files.
+Expected: **37 passed** (22 pipeline + 9 integration + 6 load study). They need no MATLAB and no data files.
 Simulated planning study (not a test):
 `python tests/synthetic_study.py 30 1.0 1.50 1.80 0.02`.
 
@@ -191,7 +191,14 @@ they are **not** real-world accuracy.
 cadence_spm, stride_m, direction, model_version, data_label), models saved as JSON
 (trained on the 180 SIMULATED passes), and stubs for `classify_event` and
 `profile_person`. Details, limits and the MATLAB example: `das_height_v2/integration/README.md`.
-Tests: `python -m pytest tests` (31 passed).
+Tests: `python -m pytest tests` (37 passed).
+
+## Exploratory: load-change and weight-range identifiability (T11)
+`das_height_v2/exploratory/load_identifiability/` estimates, with the generator's own
+equations plus labelled assumptions, how many weight ranges footstep amplitude could
+separate at each calibration level. No weight model is trained. Summary: no separation
+between people without calibration; about 3 broad classes with strong calibration;
+a within-person load change of about 12 % amplitude in the best case. See its README.
 
 ## 10. Current status, assumptions and limitations
 - **Assumptions:** step length = k x height, with k ~ N(0.415, 0.02) per

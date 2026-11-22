@@ -197,3 +197,18 @@ New files only; `das_height/`, `matlab/` and the frozen v2.1 results are unchang
 - Limits: needs a walk parallel to the fibre with >= 8 validated footsteps
   (fibre crossings fail QC); oblique paths shorten stride by cos(angle); models
   are SIMULATED only.
+
+# exploratory T11 (22 Nov 2026): load-change / weight-range identifiability
+
+New folder `exploratory/load_identifiability/`; no pipeline, model or result
+of v2.1 or integration v0.1 is changed. SIMULATED + ASSUMED, no model trained.
+- Error-propagation study of footstep amplitude at 0.4 m channel spacing
+  (gauge length 0.8 / 1.2 m): lane distance, repeatability and crossing
+  geometry measured from the generator equations; coupling, speed and
+  footwear swept as labelled assumptions.
+- Result: between people, weight ranges are not identifiable without
+  calibration (1 class across 45–110 kg); with lane ±0.1 m and coupling
+  calibrated to 10 %, about 3 broad classes; within one person a ~12 %
+  amplitude change (≈ +8–10 kg) is detectable in the best case. Crossing
+  intruders give no separable weight information.
+- `tests/test_load_identifiability.py`: 6 tests. Full suite: 37 passed.

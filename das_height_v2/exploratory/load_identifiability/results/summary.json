@@ -1,0 +1,29 @@
+{
+  "data_label": "SIMULATED",
+  "dx_m": 0.4,
+  "gauges_m": [
+    0.8,
+    1.2
+  ],
+  "note": "Amplitude proportional to weight is a generator assumption; no model trained.",
+  "gl0.8": {
+    "lnA_vs_lnW_slope": 0.9822198698568829,
+    "sigma_repeat_ln": 0.01902848045666298,
+    "per_footstep_sd_ln": 0.1309622555855753,
+    "dlnA_dlane_at_1m_per_m": -0.9365781680736822,
+    "sigma_lane_unknown_0p5_2_ln": 0.35926044880374824,
+    "lane_0p5_to_2_ln_drop": 1.2349114744438143,
+    "crossing_dynamic_range_ln_abs_y_ge_0p25": 1.9356272452662475,
+    "crossing_channel_grid_effect_ln_abs_y_ge_0p25": 0.10004116626185304
+  },
+  "gl1.2": {
+    "lnA_vs_lnW_slope": 0.9865069605453354,
+    "sigma_repeat_ln": 0.016582352989149868,
+    "per_footstep_sd_ln": 0.1101596041276669,
+    "dlnA_dlane_at_1m_per_m": -0.8139279154247123,
+    "sigma_lane_unknown_0p5_2_ln": 0.3160426186565797,
+    "lane_0p5_to_2_ln_drop": 1.06606162627951,
+    "crossing_dynamic_range_ln_abs_y_ge_0p25": 1.6856721779264243,
+    "crossing_channel_grid_effect_ln_abs_y_ge_0p25": 0.18118661390935975
+  }
+}

@@ -5,13 +5,15 @@ Claude Code reads this file at the start of every session in this folder.
 ## What this project is
 DAS-based walker HEIGHT estimation, part of the PNU graduation project
 "AI-Based DOFS Network for Autonomous Perimeter Security and Real-Time
-Intruder Detection and Tracking: Hajj Season Use Case". Height only; weight
-estimation is out of scope for now.
+Intruder Detection and Tracking: Hajj Season Use Case". Height is the
+modelled target; weight is studied only as an exploratory identifiability
+analysis (exploratory/), never as a weight model.
 - matlab/make_height_dataset.m : MATLAB generator of SIMULATED passes (HDF5)
 - das_height/                  : Python pipeline (footsteps, features, ridge/GPR, LOSO)
 - tests/                       : pytest suite + tools; see CHANGES.md and README.md
 - integration/                 : interface for the team's MATLAB system (estimate_height,
                                  saved SIMULATED models, stubs); imports das_height, never changes it
+- exploratory/load_identifiability/ : T11 weight/load identifiability study (no model trained)
 
 ## Hard rules
 1. Work ONLY inside this folder (das_height_v2). Never read-modify-write the
