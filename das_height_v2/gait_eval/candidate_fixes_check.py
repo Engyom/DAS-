@@ -1,7 +1,7 @@
 """T10 follow-up: would two candidate v2.2 changes remove the failures found?
 
-NOT applied to the pipeline. das_height/ (v2.1) is frozen; changing it needs
-approval and a new version. This script only post-processes v2.1 outputs:
+Both changes were later applied as v2.2. This script runs the detector with
+dominance_db=None (v2.1 behaviour) and post-processes its output:
   dominance filter : drop a detection whose envelope is more than 15 dB
                      below the envelope maximum within +/-0.45 s (removes
                      band-pass ringing side-lobes at high SNR)
@@ -49,7 +49,7 @@ def run(n=20, seed=42):
         with generator(0.4, nm):
             for _ in range(n):
                 rec, tr = simulate_pass_with_truth(rng.uniform(1.5, 1.9), 0.415, lane, 0.8, rng)
-                d = detect_footsteps(rec)
+                d = detect_footsteps(rec, dominance_db=None)   # v2.1 behaviour
                 for tag, (t, x) in (("v21", (d["times"], d["positions"])), ("dom", dominance(rec, d))):
                     f = extract_pass_features(t, x)
                     ok = v21_qc(f)

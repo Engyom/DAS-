@@ -27,7 +27,7 @@ multiple of the spacing that is >= 0.8 m (0.25 -> 1.0, 0.4 -> 0.8,
 generator's per-channel output noise is the same at every spacing, as the
 plan requires, and MATLAB and Python average the same number of channels.
 
-    python -m gait_eval.sensitivity --out gait_eval/results_sensitivity
+    python -m gait_eval.sensitivity --out gait_eval/results_sensitivity_v2.2
 """
 import argparse, json, math, os
 from contextlib import contextmanager
@@ -36,7 +36,7 @@ import numpy as np
 import pandas as pd
 from scipy.ndimage import uniform_filter1d
 
-from das_height.features import extract_pass_features
+from das_height.features import MIN_FILL_RATIO, extract_pass_features, gait_plausible
 from das_height.footsteps import bandpass, detect_footsteps, noise_floor
 from gait_eval.matching import detection_metrics, estimate_offset, match_footsteps
 from gait_eval.sim_truth import simulate_pass_with_truth
@@ -45,6 +45,10 @@ from tests import sim_py
 LABEL = "SIMULATED"
 BASE = dict(dx=0.4, gl=0.8, lane=1.0, noise_mult=1.0, cadence=None)
 TOL = 0.050
+# v2.2 pipeline: dominance filter in detect_footsteps (default) + plausibility QC.
+# results_sensitivity/ was produced with v2.1 (commit d50bd08); results_sensitivity_v2.2/ with this.
+PLAUSIBILITY_QC = True
+VERSION = "v2.2"
 
 
 @contextmanager
@@ -93,6 +97,9 @@ def run_setting(n_passes, rng, dx, gl, lane, noise_mult=1.0, cadence=None):
             det_all.append((det, truth))
             qc = (f["n_steps"] >= 8) and (f["fit_r2"] >= 0.95) and (f["inlier_frac"] >= 0.8) \
                 and np.isfinite(f["step_length_m"])
+            if PLAUSIBILITY_QC:                      # v2.2 QC (features.gait_plausible)
+                qc = qc and gait_plausible(f["cadence_spm"], f["step_length_m"]) \
+                    and f["fill_ratio"] >= MIN_FILL_RATIO
             rows.append({"pass": i, "qc_pass": bool(qc), "n_det": int(det["times"].size),
                          "snr_db": detection_snr_db(rec, det["times"]),
                          "stride_err_cm": 100 * 2 * (f["step_length_m"] - truth["step_length_m"]) if qc else np.nan,
@@ -198,13 +205,13 @@ def plot(df, path):
     ax[1, 2].set_yticks(range(g.shape[0])); ax[1, 2].set_yticklabels([f"x{r:g}" for r in g.index])
     ax[1, 2].set(xlabel="Lane distance [m]", ylabel="Noise (x default)", title="Operating envelope: stride RMSE [cm]")
     fig.colorbar(im, ax=ax[1, 2], shrink=0.8)
-    fig.suptitle("SIMULATED - T10 gait sensitivity (conditional on the generator's white-noise, ideal-gauge model; not real-world accuracy)", fontsize=11)
+    fig.suptitle(f"SIMULATED - T10 gait sensitivity, pipeline {VERSION} (conditional on the generator's white-noise, ideal-gauge model; not real-world accuracy)", fontsize=11)
     fig.tight_layout(); fig.savefig(path, dpi=125); plt.close(fig)
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "results_sensitivity"))
+    ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "results_sensitivity_v2.2"))
     ap.add_argument("--passes", type=int, default=12)
     ap.add_argument("--seed", type=int, default=7)
     a = ap.parse_args()

@@ -1,4 +1,4 @@
-# DAS-based walker height estimation: simulation baseline v2.1
+# DAS-based walker height estimation (pipeline v2.2; simulation baseline v2.1)
 
 Graduation project, Princess Nourah bint Abdulrahman University (PNU),
 Communications Engineering:
@@ -56,7 +56,7 @@ Full technical description, assumptions, results and limitations:
 |   |-- README.md, CHANGES.md  project notes and change log
 |   `-- CLAUDE.md, .claude/settings.json  rules for Claude Code (plan mode;
 |                              the generator is protected from edits)
-`-- sim_scratch/               frozen SIMULATED results of v2.1
+`-- sim_scratch/               SIMULATED results: v2.1 (frozen) and *_v2.2
     |-- sim_out/manifest_truth.csv  truth labels of the 180 passes (the .h5 files
     |                              are NOT in git: ~1.7 GB, regenerate with MATLAB)
     |-- features.csv           feature table, 180 passes
@@ -143,7 +143,7 @@ with leave-one-subject-out evaluation (about 1 minute) and writes
 ```bash
 python -m pytest tests
 ```
-Expected: **46 passed** (22 pipeline + 9 integration + 6 load study + 9 gait tooling). They need no MATLAB and no data files.
+Expected: **50 passed** (25 pipeline + 10 integration + 6 load study + 9 gait tooling). They need no MATLAB and no data files.
 Simulated planning study (not a test):
 `python tests/synthetic_study.py 30 1.0 1.50 1.80 0.02`.
 
@@ -191,7 +191,7 @@ they are **not** real-world accuracy.
 cadence_spm, stride_m, direction, model_version, data_label), models saved as JSON
 (trained on the 180 SIMULATED passes), and stubs for `classify_event` and
 `profile_person`. Details, limits and the MATLAB example: `das_height_v2/integration/README.md`.
-Tests: `python -m pytest tests` (46 passed).
+Tests: `python -m pytest tests` (50 passed).
 
 ## Phase A analysis tooling (T9)
 `das_height_v2/gait_eval/` matches DAS footsteps to ground-truth contacts and computes
@@ -200,6 +200,15 @@ fixed before data collection. It is checked on simulated passes with known truth
 (SIMULATED, not accuracy). See its README for the findings to act on before Phase A.
 The same folder holds the T10 sensitivity study (channel spacing, noise, lane distance,
 cadence), which found two v2.1 failure modes and checks candidate fixes for a v2.2.
+
+## v2.2 (22 Nov 2026)
+Fixes from T10, approved by the project author: a dominance filter in footstep
+detection (band-pass ringing at high SNR) and two extra QC checks (walking-plausible
+cadence and step length; fill ratio of validated footsteps). On the 180 simulated
+passes 8 passes change and the LOSO results are essentially the same (ridge
+subject-level MAE 5.85 cm, RMSE 7.10 cm); see `das_height_v2/CHANGES.md`. v2.1 stays
+available at tag `v2.1-sim-baseline` and in `sim_scratch/features.csv` + `results/`;
+v2.2 outputs are `sim_scratch/features_v2.2.csv` + `results_v2.2/`.
 
 ## Exploratory: load-change and weight-range identifiability (T11)
 `das_height_v2/exploratory/load_identifiability/` estimates, with the generator's own

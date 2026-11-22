@@ -118,7 +118,7 @@ each noise level.
    twice the true one; the remaining footsteps still lie on a clean line, so
    the v2.1 QC (≥ 8 steps, R² ≥ 0.95, ≥ 80 % inliers) cannot see it.
 
-## Candidate fixes (checked, NOT applied — need approval as v2.2)
+## Candidate fixes — checked here, then APPLIED as v2.2 (see CHANGES.md)
 `candidate_fixes_check.py` post-processes v2.1 output (20 passes per setting):
 
 | Setting | v2.1 | + dominance filter | + plausibility QC | both |
@@ -133,5 +133,27 @@ below the envelope maximum within ±0.45 s. Plausibility QC: cadence 70–150
 steps/min and step length 0.3–1.0 m. The plausibility ranges are a judgment
 for walking; running intruders exceed 150 steps/min, so for security use the
 gate should flag rather than discard. Both changes leave the baseline
-unchanged. Decision needed before Phase A: adopt them as v2.2 (v2.1 stays
-tagged as the simulation baseline).
+unchanged. Both were approved and are part of the pipeline from v2.2
+(22 Nov 2026); this script post-processes with dominance_db=None, i.e. it
+compares against v2.1 behaviour.
+
+
+## After v2.2 (`results_sensitivity_v2.2/`)
+The same sweep with the v2.2 pipeline (dominance filter, plausibility QC and
+a fill-ratio QC ≥ 0.85 that was added because the plausibility gate alone
+missed irregular gaps):
+
+| Setting | v2.1 stride RMSE (QC) | v2.2 stride RMSE (QC) |
+|---|---|---|
+| Noise ×0.5 (high SNR) | 38.5 cm (100 %) | **0.4 cm (100 %)** |
+| Lane 0.5 m, grid ×1 | 1.1 cm, precision 94 % | 0.35 cm, precision 100 % |
+| Spacing 2 m, lane 0.5 m | 2.5 cm | 1.1 cm |
+| Noise ×4, lane 1.5 m (recall 54 %) | 21.3 cm (100 %) | 67 cm (8 %: 1 of 12 kept, and it is wrong) |
+| Noise ×2, lane 3 m | 323 cm (25 %) | none pass |
+
+All other settings are unchanged. The high-SNR failure is fixed. The low-SNR
+failure is reduced, not removed: QC now rejects almost every pass in the
+marginal cells, but a wrong pass can still get through. All such cells have
+a median detection SNR below 10 dB, so the operating rule stays: measure the
+detection SNR in Phase 0 and use the system only where it is ≳ 12 dB (a
+per-pass SNR gate can be set once the real SNR is known).

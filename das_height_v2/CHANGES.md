@@ -243,3 +243,39 @@ recovered by replaying its random draws).
 - Candidate fixes checked, not applied: dominance filter (-15 dB within
   +/-0.45 s) and a cadence/step-length plausibility QC. Need approval as v2.2.
 - 3 new tests; full suite 46 passed.
+
+# v2.2 (22 Nov 2026): fixes for the two T10 failure modes
+
+Approved by the project author. v2.1 stays in Git (tag v2.1-sim-baseline).
+- footsteps.detect_footsteps: dominance filter (dominance_db=15,
+  dominance_win_s=0.45): a peak more than 15 dB below the envelope maximum
+  within +/-0.45 s is dropped (band-pass ringing side-lobes). New diagnostic
+  n_dominated. dominance_db=None reproduces v2.1.
+- features.gait_plausible + PLAUSIBLE_CADENCE_SPM (70-150) and
+  PLAUSIBLE_STEP_M (0.3-1.0); train_eval.qc_filter(plausibility=True) and
+  integration.estimate_height reject implausible passes with a reason, but
+  estimate_height still returns their gait fields (running is flagged).
+- features: new QC value fill_ratio = validated footsteps / (1 + span /
+  step length); QC requires fill_ratio >= 0.85 (MIN_FILL_RATIO; judgment
+  value, to re-set on Phase A data). Added because the plausibility gate
+  alone catches only regularly missed steps that push cadence below
+  70 steps/min.
+- T10 rerun with v2.2 (gait_eval/results_sensitivity_v2.2/): the high-SNR
+  failure is gone (noise x0.5: stride RMSE 38.5 -> 0.4 cm; precision at lane
+  0.5 m 94-99.5 % -> 99-100 %); spacing 1-2 m at lane 0.5 m improves
+  (1.7 -> 0.6 and 2.5 -> 1.1 cm). The low-SNR failure is reduced, not
+  removed: in the grid cell noise x4 / lane 1.5 m QC now rejects 11 of 12
+  passes, but the one it keeps has a 67 cm error. Every cell where this
+  happens has a median detection SNR below 10 dB; a per-pass SNR gate is
+  left for after Phase 0, when the real SNR is known.
+- Effect on the 180 simulated passes: 8 passes change (all at lane 0.5 m,
+  4-12 side-lobe detections removed each); pipeline step-length MAE
+  0.254 -> 0.247 cm; QC rejects 0. LOSO results essentially unchanged
+  (ridge subject-level MAE 5.85 cm, RMSE 7.09 -> 7.10; step-length-only
+  5.88 -> 5.89 / 7.20 -> 7.21; GPR 6.80 -> 6.69). New files:
+  sim_scratch/features_v2.2.csv, sim_scratch/results_v2.2/ (v2.1 files kept).
+- integration/models refitted on the v2.2 features (model_version
+  ...@v2.2-sim; step-length model 104.53 + 89.12 cm/m, was 104.44 + 89.28).
+  S01_d1.0_r1.h5 still gives 168.0 cm (+/- 7.2).
+- Tests: +4 (dominance filter, plausibility QC, fill-ratio QC, estimate_height flag);
+  test_integration now checks the v2.2 models. Full suite: 50 passed.

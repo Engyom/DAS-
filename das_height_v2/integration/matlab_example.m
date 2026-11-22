@@ -3,7 +3,8 @@
 % STATUS: TESTED 22 Nov 2026 on MATLAB R2026b (Windows 11) with Python 3.14.10
 % from the repository's .venv, OutOfProcess. Output for S01_d1.0_r1.h5:
 %   size 12368 x 161; height 168.0 cm (+/- 7.2), stride 1.424 m,
-%   cadence 124.0 spm, QC: ok   (identical to the Python side).
+%   cadence 124.0 spm, QC: ok   (identical to the Python side; v2.1 models).
+% With the v2.2 models (22 Nov 2026) Python gives the same printed values.
 % SIMULATED model: this checks the MATLAB-Python link, not real-world accuracy.
 %
 % Requirements: Python with numpy, scipy, pandas, scikit-learn

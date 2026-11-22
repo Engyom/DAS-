@@ -20,7 +20,36 @@ DESCRIPTIVE_NAMES = ["speed_mps"]
 # n_detections: all footsteps detected. n_steps: those validated as inliers
 # of the robust position-time fit. Every feature uses only the n_steps
 # validated footsteps (v2.1).
-QC_NAMES = ["n_steps", "n_detections", "fit_r2", "inlier_frac", "step_length_direct_m"]
+QC_NAMES = ["n_steps", "n_detections", "fit_r2", "inlier_frac", "step_length_direct_m", "fill_ratio"]
+
+# v2.2 plausibility QC (T10 sensitivity study). When footsteps are missed at
+# regular intervals (low SNR) the step period is read as a multiple of the
+# true one, and the remaining footsteps still lie on a clean line, so the
+# fit-based QC passes them (stride errors of 20-400 cm in simulation). A pass
+# is usable for height only if its gait is plausible for WALKING. These are
+# judgment values; running exceeds 150 steps/min, so callers should flag such
+# passes, not treat them as errors.
+PLAUSIBLE_CADENCE_SPM = (70.0, 150.0)
+PLAUSIBLE_STEP_M = (0.3, 1.0)
+# v2.2 completeness QC: fill_ratio = validated footsteps / footsteps expected
+# over the covered distance (1 + span / step length). Missed footsteps that
+# are NOT regular (so cadence stays plausible) still bias the step period;
+# in the T10 simulation clean passes had fill_ratio 0.86-1.02 (the lowest
+# at lane 0.5 m, where the robust fit rejects some real footsteps), while
+# passes with large stride errors were mostly below 0.85. The two ranges
+# overlap, so this gate lowers but does not remove the low-SNR risk; it is a
+# judgment value to re-set on Phase A data.
+MIN_FILL_RATIO = 0.85
+
+
+def gait_plausible(cadence_spm, step_length_m, cadence_range=PLAUSIBLE_CADENCE_SPM,
+                   step_range=PLAUSIBLE_STEP_M):
+    """True when cadence and step length are inside the walking ranges."""
+    try:
+        c, l = float(cadence_spm), float(step_length_m)
+    except (TypeError, ValueError):
+        return False
+    return bool(cadence_range[0] <= c <= cadence_range[1] and step_range[0] <= l <= step_range[1])
 
 
 def _robust_line(t, x):
@@ -69,5 +98,6 @@ def extract_pass_features(times, positions, min_steps=6):
         "step_length_m": speed * T,           # robust: averages all steps
         "step_length_cv": float(dl.std() / dl.mean()) if dl.size > 2 else np.nan,
         "step_length_direct_m": float(np.median(dl)) if dl.size else np.nan,
+        "fill_ratio": float(ok.sum() / (1.0 + np.ptp(x) / (speed * T))) if speed * T > 0 else np.nan,
     })
     return out

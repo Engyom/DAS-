@@ -1,13 +1,14 @@
-"""Fit the v2.1 height models on ALL simulated passes and save them as JSON.
+"""Fit the height models on ALL simulated passes and save them as JSON.
 
 T12 (research plan): a model trained once on the 180 SIMULATED passes,
 saved so the team's MATLAB system can use it without retraining. This file
-is new; the frozen v2.1 code in das_height/ is imported, never changed.
+is new; it imports das_height (v2.2 since 22 Nov 2026; the v2.1 models are
+in Git at tag v2.1-sim-baseline).
 
 Usage (from das_height_v2/):
     python -m integration.fit_sim_models \
-        --features ../sim_scratch/features.csv \
-        --metrics  ../sim_scratch/results/metrics.json \
+        --features ../sim_scratch/features_v2.2.csv \
+        --metrics  ../sim_scratch/results_v2.2/metrics.json \
         --out      integration/models
 
 Two models are saved, fitted exactly as in das_height.train_eval:
@@ -27,10 +28,10 @@ from sklearn.model_selection import GridSearchCV, LeaveOneGroupOut
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from das_height.features import FEATURE_NAMES
+from das_height.features import FEATURE_NAMES, MIN_FILL_RATIO, PLAUSIBLE_CADENCE_SPM, PLAUSIBLE_STEP_M
 from das_height.train_eval import ALPHAS, qc_filter, subject_weights
 
-BASELINE = "v2.1-sim-baseline"
+PIPELINE_VERSION = "v2.2-sim"
 
 
 def _sha256(path):
@@ -44,7 +45,7 @@ def _provenance(df, features_path, feats):
     X = df[feats]
     return {
         "data_label": "SIMULATED",
-        "pipeline_version": BASELINE,
+        "pipeline_version": PIPELINE_VERSION,
         "trained_on": {
             "features_csv_sha256": _sha256(features_path),
             "n_passes": int(len(df)),
@@ -52,7 +53,9 @@ def _provenance(df, features_path, feats):
             "height_cm_range": [float(df.height_cm.min()), float(df.height_cm.max())],
             "feature_range": {f: [float(X[f].min()), float(X[f].max())] for f in feats},
         },
-        "qc": {"min_steps": 8, "min_r2": 0.95, "min_inliers": 0.8},
+        "qc": {"min_steps": 8, "min_r2": 0.95, "min_inliers": 0.8,
+               "plausible_cadence_spm": list(PLAUSIBLE_CADENCE_SPM), "plausible_step_m": list(PLAUSIBLE_STEP_M),
+               "min_fill_ratio": MIN_FILL_RATIO},
         "note": ("SIMULATED training data: height enters the simulation only through the "
                  "assumed rule step length = k x height. Not validated on real DAS data."),
     }
@@ -82,7 +85,7 @@ def fit_ridge(df, feats=FEATURE_NAMES):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--features", required=True)
-    ap.add_argument("--metrics", required=True, help="metrics.json of the same v2.1 run")
+    ap.add_argument("--metrics", required=True, help="metrics.json of the same SIMULATED run")
     ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "models"))
     a = ap.parse_args(argv)
     raw = pd.read_csv(a.features)
@@ -91,11 +94,11 @@ def main(argv=None):
     df, n_rej = qc_filter(raw)
     met = json.load(open(a.metrics))
     if met.get("data_label") != "SIMULATED":
-        raise ValueError("metrics.json must come from the SIMULATED v2.1 run")
+        raise ValueError("metrics.json must come from a SIMULATED run")
     os.makedirs(a.out, exist_ok=True)
     for name, fitter in (("steplength_linear", fit_steplength_linear), ("ridge", fit_ridge)):
         params, _ = fitter(df)
-        doc = {"model": name, "model_version": f"{name}@{BASELINE}", **params,
+        doc = {"model": name, "model_version": f"{name}@{PIPELINE_VERSION}", **params,
                "uncertainty_cm": float(met["pass_level"][name]["RMSE_cm"]),
                "uncertainty_note": ("LOSO pass-level RMSE on SIMULATED data; a typical error "
                                     "size, not a per-person uncertainty"),

@@ -4,7 +4,7 @@ The team's agreed interface (11 output fields):
     height_cm, uncertainty_cm, n_steps, qc_pass, qc_reason, speed_mps,
     cadence_spm, stride_m, direction, model_version, data_label
 
-It runs the frozen v2.1 pipeline (das_height.footsteps, das_height.features)
+It runs the v2.2 pipeline (das_height.footsteps, das_height.features)
 unchanged, then applies a model saved by integration/fit_sim_models.py.
 
 Limits (by design, see the research plan):
@@ -14,13 +14,18 @@ Limits (by design, see the research plan):
   - The saved models are trained on SIMULATED data only. On real data
     their output is a sim-to-real test, not a validated measurement.
   - uncertainty_cm is a typical simulated error size, not per person.
+  - v2.2: a pass whose cadence or step length is outside the walking range
+    (70-150 steps/min, 0.3-1.0 m) fails QC with a reason; its gait fields are
+    still returned, so a running intruder is reported, just without height.
+    A pass with too many missed footsteps (fill ratio < 0.85) also gets no height.
 """
 import json, math, os
 import numpy as np
 
 from das_height.schema import DASRecord
 from das_height.footsteps import detect_footsteps
-from das_height.features import extract_pass_features, _robust_line
+from das_height.features import (extract_pass_features, _robust_line, gait_plausible,
+                                  MIN_FILL_RATIO, PLAUSIBLE_CADENCE_SPM, PLAUSIBLE_STEP_M)
 
 MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
 DEFAULT_MODEL = "steplength_linear"
@@ -103,6 +108,14 @@ def estimate_height(data, fs, dx, gauge_length, x0=0.0, units="strain", data_lab
         reasons.append(f"walking line fit R2 {f['fit_r2']:.3f} < {min_r2}")
     if not (f["inlier_frac"] >= min_inliers):
         reasons.append(f"inlier fraction {f['inlier_frac']:.2f} < {min_inliers}")
+    if f["n_steps"] >= min_steps and not gait_plausible(f["cadence_spm"], f["step_length_m"]):
+        reasons.append(f"gait outside walking range (cadence {f['cadence_spm']:.0f} steps/min, "
+                       f"step {f['step_length_m']:.2f} m; walking {PLAUSIBLE_CADENCE_SPM[0]:.0f}-"
+                       f"{PLAUSIBLE_CADENCE_SPM[1]:.0f} steps/min, {PLAUSIBLE_STEP_M[0]}-{PLAUSIBLE_STEP_M[1]} m): "
+                       "missed or extra footsteps, or running")
+    if f["n_steps"] >= min_steps and not (f["fill_ratio"] >= MIN_FILL_RATIO):
+        reasons.append(f"too many missed footsteps (fill ratio {f['fill_ratio']:.2f} < {MIN_FILL_RATIO}): "
+                       "signal too weak for a reliable step period")
     missing = [n for n in mdl["features"] if not math.isfinite(float(f.get(n, float("nan"))))]
     if missing:
         reasons.append(f"features not computable: {missing}")

@@ -1,6 +1,6 @@
 {
   "model": "steplength_linear",
-  "model_version": "steplength_linear@v2.1-sim-baseline",
+  "model_version": "steplength_linear@v2.2-sim",
   "features": [
     "step_length_m"
   ],
@@ -11,16 +11,16 @@
     1.0
   ],
   "coef": [
-    89.27692323565492
+    89.12014476770922
   ],
-  "intercept": 104.43678914615207,
+  "intercept": 104.53391452221868,
   "alpha": null,
-  "uncertainty_cm": 7.224663925644851,
+  "uncertainty_cm": 7.2330251636265395,
   "uncertainty_note": "LOSO pass-level RMSE on SIMULATED data; a typical error size, not a per-person uncertainty",
   "data_label": "SIMULATED",
-  "pipeline_version": "v2.1-sim-baseline",
+  "pipeline_version": "v2.2-sim",
   "trained_on": {
-    "features_csv_sha256": "30ad5e94f2c46a7a99200f087394f03d8bd3028dc68187e2d1bfde035385e4d2",
+    "features_csv_sha256": "975723fdb79304ca4780899b0d266b3a212743e43da0e3264eaf7b8f741f75ef",
     "n_passes": 180,
     "n_subjects": 30,
     "height_cm_range": [
@@ -37,7 +37,16 @@
   "qc": {
     "min_steps": 8,
     "min_r2": 0.95,
-    "min_inliers": 0.8
+    "min_inliers": 0.8,
+    "plausible_cadence_spm": [
+      70.0,
+      150.0
+    ],
+    "plausible_step_m": [
+      0.3,
+      1.0
+    ],
+    "min_fill_ratio": 0.85
   },
   "note": "SIMULATED training data: height enters the simulation only through the assumed rule step length = k x height. Not validated on real DAS data."
 }

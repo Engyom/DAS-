@@ -12,7 +12,8 @@ from das_height.train_eval import qc_filter
 from das_height.schema import DASRecord
 from tests.sim_py import simulate_pass
 
-FEATURES_CSV = os.path.join(os.path.dirname(__file__), "..", "..", "sim_scratch", "features.csv")
+# v2.2: the saved models are fitted on the v2.2 features (v2.1 models: Git tag v2.1-sim-baseline)
+FEATURES_CSV = os.path.join(os.path.dirname(__file__), "..", "..", "sim_scratch", "features_v2.2.csv")
 
 
 @pytest.fixture(scope="module")
@@ -63,7 +64,7 @@ def test_invalid_inputs_are_rejected(walk):
         estimate_height(rec.data, 0, rec.dx, rec.gauge_length)
 
 
-@pytest.mark.skipif(not os.path.exists(FEATURES_CSV), reason="frozen sim_scratch/features.csv not present")
+@pytest.mark.skipif(not os.path.exists(FEATURES_CSV), reason="sim_scratch/features_v2.2.csv not present")
 @pytest.mark.parametrize("name, fitter", [("steplength_linear", fit_steplength_linear), ("ridge", fit_ridge)])
 def test_saved_models_reproduce_scikit_learn(name, fitter):
     df, _ = qc_filter(pd.read_csv(FEATURES_CSV))
@@ -77,7 +78,7 @@ def test_saved_models_reproduce_scikit_learn(name, fitter):
 def test_saved_models_are_labelled_simulated():
     for name in ("steplength_linear", "ridge"):
         m = json.load(open(os.path.join(MODEL_DIR, f"{name}.json")))
-        assert m["data_label"] == "SIMULATED" and m["pipeline_version"] == "v2.1-sim-baseline"
+        assert m["data_label"] == "SIMULATED" and m["pipeline_version"] == "v2.2-sim"
 
 
 def test_bridge_matches_direct_call_and_stubs_are_marked(walk):
@@ -93,3 +94,19 @@ def test_bridge_matches_direct_call_and_stubs_are_marked(walk):
     assert bridge.classify_event(None) == {"class": "unknown", "confidence": 0.0}
     p = bridge.profile_person(None, 7)
     assert set(p) == {"person_id", "is_new", "confidence"} and p["confidence"] == 0.0
+
+
+def test_implausible_gait_fails_qc_but_keeps_gait_fields():
+    """v2.2: a pass outside the walking range gets no height, with a reason,
+    but its cadence and speed are still reported (e.g. a running intruder)."""
+    from tests import sim_py
+    old = sim_py.G["cad_range"]
+    sim_py.G["cad_range"] = (60.0, 60.0)          # below the 70 steps/min walking floor
+    try:
+        rec, _, _ = simulate_pass(1.70, 0.415, 1.0, 1.0, np.random.default_rng(4))
+    finally:
+        sim_py.G["cad_range"] = old
+    out = estimate_height(rec.data, rec.fs, rec.dx, rec.gauge_length)
+    assert not out["qc_pass"] and math.isnan(out["height_cm"])
+    assert "walking range" in out["qc_reason"]
+    assert abs(out["cadence_spm"] - 60.0) < 2.0 and out["speed_mps"] > 0

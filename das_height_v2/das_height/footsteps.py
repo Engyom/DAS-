@@ -17,6 +17,17 @@ v2.1 change: the band-pass uses mirror ("even") edge padding, 3 periods of
 the lowest pass-band frequency long, instead of SciPy's default short odd
 padding, which created false footsteps at the start and end of records
 (see bandpass()).
+
+v2.2 change (T10 sensitivity study): dominance filter. The zero-phase
+band-pass rings: each footstep's energy envelope has side-lobes about 0.28 s
+before and 0.41 s after it, about 24 dB below the main peak (none in the raw
+envelope). When a footstep is more than ~33 dB above the noise floor the
+side-lobes cross the threshold, lie beyond min_sep_s and on the walker's
+track, and were accepted as footsteps (cadence doubled, stride error
+-75 to -80 cm in simulation, QC passed). A peak is now kept only if it is no
+more than dominance_db below the envelope maximum within +/-dominance_win_s.
+Assumes one walker in the section: a much weaker second walker within
+0.45 s is also dropped. dominance_db=None restores v2.1 exactly.
 """
 import numpy as np
 from scipy.signal import butter, sosfiltfilt, find_peaks
@@ -60,7 +71,8 @@ def noise_floor(E):
 
 
 def detect_footsteps(rec, band=(2.0, 60.0), win_s=0.1, min_sep_s=0.3,
-                     thr_factor=8.0, loc_halfwidth_m=4.0, edge_m=2.0):
+                     thr_factor=8.0, loc_halfwidth_m=4.0, edge_m=2.0,
+                     dominance_db=15.0, dominance_win_s=0.45):
     """Return dict with footstep times [s], positions [m], energies and
     diagnostics.
 
@@ -71,6 +83,9 @@ def detect_footsteps(rec, band=(2.0, 60.0), win_s=0.1, min_sep_s=0.3,
     thr_factor      : threshold = thr_factor x noise floor of the energy map
     loc_halfwidth_m : half-width of the window used for the energy centroid
     edge_m          : discard footsteps this close to either end of the section
+    dominance_db    : (v2.2) drop a peak more than this many dB below the
+                      envelope maximum within +/-dominance_win_s [s]
+                      (band-pass ringing side-lobes); None = v2.1 behaviour
 
     Data are used in their native units (strain or strain-rate): geometric
     features do not depend on units, and differentiating white noise
@@ -84,6 +99,13 @@ def detect_footsteps(rec, band=(2.0, 60.0), win_s=0.1, min_sep_s=0.3,
     floor = noise_floor(E)
     thr = thr_factor * floor
     pk, _ = find_peaks(env, height=thr, distance=max(1, int(round(min_sep_s * rec.fs))))
+    n_dominated = 0
+    if dominance_db is not None and pk.size:
+        w = max(1, int(round(dominance_win_s * rec.fs)))
+        local_max = np.array([env[max(0, p - w): p + w + 1].max() for p in pk])
+        dominant = env[pk] >= local_max * 10.0 ** (-dominance_db / 10.0)
+        n_dominated = int((~dominant).sum())
+        pk = pk[dominant]
 
     pos_axis = rec.positions
     half = max(1, int(round(loc_halfwidth_m / rec.dx)))
@@ -105,4 +127,5 @@ def detect_footsteps(rec, band=(2.0, 60.0), win_s=0.1, min_sep_s=0.3,
     return {"times": times[keep], "positions": positions[keep],
             "energies": energies[keep],
             "diagnostics": {"noise_floor": floor, "threshold": thr,
-                            "n_peaks": int(pk.size), "n_kept": int(keep.sum())}}
+                            "n_peaks": int(pk.size), "n_kept": int(keep.sum()),
+                            "n_dominated": n_dominated}}

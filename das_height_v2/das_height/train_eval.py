@@ -32,7 +32,7 @@ from sklearn.model_selection import GridSearchCV, LeaveOneGroupOut
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from .features import FEATURE_NAMES
+from .features import FEATURE_NAMES, MIN_FILL_RATIO, PLAUSIBLE_CADENCE_SPM, PLAUSIBLE_STEP_M
 
 MIN_SUBJECTS = 4
 ALPHAS = np.logspace(-3, 3, 13)
@@ -54,7 +54,10 @@ def model_specs(features=FEATURE_NAMES):
     }
 
 
-def qc_filter(df, min_steps=8, min_r2=0.95, min_inliers=0.8):
+def qc_filter(df, min_steps=8, min_r2=0.95, min_inliers=0.8, plausibility=True):
+    """Keep usable passes. v2.2: also require walking-plausible cadence and
+    step length (features.gait_plausible) and fill_ratio >= MIN_FILL_RATIO
+    (no large share of missed footsteps); plausibility=False gives v2.1."""
     need = ["subject_id", "pass_id", "height_cm", "n_steps", "fit_r2", "inlier_frac"] + FEATURE_NAMES
     missing = [c for c in need if c not in df.columns]
     if missing:
@@ -62,6 +65,10 @@ def qc_filter(df, min_steps=8, min_r2=0.95, min_inliers=0.8):
     ok = (df["n_steps"] >= min_steps) & (df["fit_r2"] >= min_r2)
     ok &= df["inlier_frac"] >= min_inliers
     ok &= df[FEATURE_NAMES + ["height_cm"]].notna().all(axis=1)
+    if plausibility:
+        ok &= df.cadence_spm.between(*PLAUSIBLE_CADENCE_SPM) & df.step_length_m.between(*PLAUSIBLE_STEP_M)
+        if "fill_ratio" in df.columns:              # absent in v2.1 feature tables
+            ok &= df.fill_ratio >= MIN_FILL_RATIO
     return df[ok].copy(), int((~ok).sum())
 
 

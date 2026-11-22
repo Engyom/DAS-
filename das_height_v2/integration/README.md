@@ -1,15 +1,15 @@
 # integration/ — interface for the team's MATLAB system (T12)
 
-New layer on top of the frozen v2.1 pipeline. **It does not change `das_height/`**;
+New layer on top of the das_height pipeline (v2.2 since 22 Nov 2026). **It does not change `das_height/`**;
 it imports it. Everything here is trained and tested on **SIMULATED** data only.
 
 | File | Purpose |
 |---|---|
 | `bridge.py` | The three agreed functions: `classify_event` (STUB), `profile_person` (STUB), `estimate_height(record)` |
-| `estimate_height.py` | Runs the v2.1 pipeline on one pass and returns the 11 agreed fields |
+| `estimate_height.py` | Runs the v2.2 pipeline on one pass and returns the 11 agreed fields |
 | `fit_sim_models.py` | Fits the models on all 180 simulated passes and saves them as JSON |
 | `models/steplength_linear.json` | Default model: height = a + b x step length |
-| `models/ridge.json` | Optional model on all three features (same as the v2.1 ridge full fit) |
+| `models/ridge.json` | Optional model on all three features (same as the ridge full fit of the v2.2 run) |
 | `matlab_example.m` | How to call it from MATLAB (tested on R2026b + Python 3.14, 22 Nov 2026) |
 
 ## estimate_height output (11 fields)
@@ -23,7 +23,7 @@ it imports it. Everything here is trained and tested on **SIMULATED** data only.
 | `speed_mps`, `cadence_spm` | Walking speed along the fibre, steps per minute |
 | `stride_m` | Stride length = speed x stride period (2 x step period) |
 | `direction` | +1 towards increasing fibre distance, -1 decreasing, 0 unknown |
-| `model_version` | e.g. `steplength_linear@v2.1-sim-baseline` |
+| `model_version` | e.g. `steplength_linear@v2.2-sim` |
 | `data_label` | `SIMULATED` or `EXPERIMENTAL`, passed through from the input |
 
 **Input record:** `data` (time x channel), `fs` [Hz], `dx` [m], `gauge_length` [m],
@@ -44,8 +44,8 @@ it imports it. Everything here is trained and tested on **SIMULATED** data only.
 ```bash
 # from das_height_v2/ (Python 3.13, requirements.txt installed)
 python -m pytest tests/test_integration.py
-python -m integration.fit_sim_models --features ../sim_scratch/features.csv \
-       --metrics ../sim_scratch/results/metrics.json --out integration/models   # regenerate models
+python -m integration.fit_sim_models --features ../sim_scratch/features_v2.2.csv \
+       --metrics ../sim_scratch/results_v2.2/metrics.json --out integration/models   # regenerate models
 ```
 
 From full-das (git submodule of this repository, pinned to a commit): put the

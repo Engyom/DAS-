@@ -70,3 +70,24 @@ def test_footstep_near_record_start_is_kept():
     cropped = DASRecord(rec.data[i0:], rec.fs, rec.dx, rec.gauge_length)
     t = detect_footsteps(cropped)["times"] + i0 / rec.fs
     assert np.min(np.abs(t - first)) < 0.04
+
+
+def test_v22_dominance_filter_removes_ringing_side_lobes():
+    """v2.2: at very high SNR the band-pass side-lobes were detected as
+    footsteps (T10). The dominance filter removes them; dominance_db=None
+    reproduces v2.1."""
+    from tests import sim_py
+    old = sim_py.P["noise"]
+    sim_py.P["noise"] = old * 0.25
+    try:
+        rec, L, cad = simulate_pass(1.70, 0.415, 0.5, 1.0, np.random.default_rng(21))
+    finally:
+        sim_py.P["noise"] = old
+    n_true = len(np.arange(3, 40 - 3 + 1e-9, L))
+    v21 = detect_footsteps(rec, dominance_db=None)
+    v22 = detect_footsteps(rec)
+    assert v21["times"].size > n_true                       # side-lobes counted as footsteps
+    assert v22["diagnostics"]["n_dominated"] > 0
+    assert abs(v22["times"].size - n_true) <= 2
+    f = extract_pass_features(v22["times"], v22["positions"])
+    assert abs(f["cadence_spm"] - cad) < 2.0 and abs(f["step_length_m"] - L) < 0.02

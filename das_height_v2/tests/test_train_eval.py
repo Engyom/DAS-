@@ -55,3 +55,25 @@ def test_qc_filter_and_errors():
         qc_filter(df.drop(columns=["inlier_frac"]))
     with pytest.raises(ValueError, match="subjects"):
         loso_evaluate(table(n_subj=3))
+
+
+def test_v22_plausibility_qc():
+    from das_height.features import gait_plausible
+    assert gait_plausible(110, 0.7) and not gait_plausible(55, 1.4) and not gait_plausible(220, 0.35)
+    assert not gait_plausible(float("nan"), 0.7)
+    df = pd.DataFrame({"subject_id": ["a", "b"], "pass_id": ["a1", "b1"], "height_cm": [170.0, 170.0],
+                       "n_steps": [20, 20], "fit_r2": [0.99, 0.99], "inlier_frac": [1.0, 1.0],
+                       "step_length_m": [0.70, 1.40], "cadence_spm": [110.0, 55.0], "step_length_cv": [0.05, 0.05]})
+    kept, rej = qc_filter(df)
+    assert list(kept.pass_id) == ["a1"] and rej == 1
+    kept21, rej21 = qc_filter(df, plausibility=False)
+    assert len(kept21) == 2 and rej21 == 0
+
+
+def test_v22_fill_ratio_qc():
+    df = pd.DataFrame({"subject_id": ["a", "b"], "pass_id": ["a1", "b1"], "height_cm": [170.0, 170.0],
+                       "n_steps": [20, 20], "fit_r2": [0.99, 0.99], "inlier_frac": [1.0, 1.0],
+                       "step_length_m": [0.70, 0.70], "cadence_spm": [110.0, 110.0],
+                       "step_length_cv": [0.05, 0.05], "fill_ratio": [0.98, 0.55]})
+    kept, rej = qc_filter(df)
+    assert list(kept.pass_id) == ["a1"] and rej == 1

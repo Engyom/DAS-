@@ -61,3 +61,13 @@ validated on real DAS recordings.
 - n_steps = validated footsteps (inliers of the robust fit);
   n_detections = all detections. Every gait feature uses the validated
   footsteps only.
+
+## v2.2 conventions (22 Nov 2026, see CHANGES.md)
+- detect_footsteps drops peaks > 15 dB below the envelope maximum within
+  +/-0.45 s (band-pass ringing). Do not remove: at high SNR it doubles the
+  cadence. dominance_db=None only to reproduce v2.1.
+- QC also requires walking-plausible gait (70-150 steps/min, 0.3-1.0 m)
+  and fill_ratio >= 0.85 (few missed footsteps);
+  estimate_height flags such passes but still reports their gait.
+- v2.1 results/models are frozen in Git (tag v2.1-sim-baseline) and in
+  sim_scratch/features.csv + results/; v2.2 ones are *_v2.2.

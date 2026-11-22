@@ -1,34 +1,34 @@
 {
   "model": "ridge",
-  "model_version": "ridge@v2.1-sim-baseline",
+  "model_version": "ridge@v2.2-sim",
   "features": [
     "step_length_m",
     "cadence_spm",
     "step_length_cv"
   ],
   "mean": [
-    0.6902577290408626,
-    110.17052641946756,
-    0.08925250224994821
+    0.6903821921822656,
+    110.15267977951959,
+    0.08530977374333705
   ],
   "scale": [
-    0.06352451017110763,
-    8.898261638021907,
-    0.051331800409984446
+    0.063528858436928,
+    8.922262515273987,
+    0.0496405980947095
   ],
   "coef": [
-    5.628641056470159,
-    0.7215900544117984,
-    0.4283497689483952
+    5.612491042435882,
+    0.695844607000199,
+    0.37075127161743104
   ],
   "intercept": 166.06087543455064,
   "alpha": 0.001,
-  "uncertainty_cm": 7.156908155945277,
+  "uncertainty_cm": 7.163564596515446,
   "uncertainty_note": "LOSO pass-level RMSE on SIMULATED data; a typical error size, not a per-person uncertainty",
   "data_label": "SIMULATED",
-  "pipeline_version": "v2.1-sim-baseline",
+  "pipeline_version": "v2.2-sim",
   "trained_on": {
-    "features_csv_sha256": "30ad5e94f2c46a7a99200f087394f03d8bd3028dc68187e2d1bfde035385e4d2",
+    "features_csv_sha256": "975723fdb79304ca4780899b0d266b3a212743e43da0e3264eaf7b8f741f75ef",
     "n_passes": 180,
     "n_subjects": 30,
     "height_cm_range": [
@@ -46,14 +46,23 @@
       ],
       "step_length_cv": [
         0.0258687258275175,
-        0.2364618160511982
+        0.2107914217717993
       ]
     }
   },
   "qc": {
     "min_steps": 8,
     "min_r2": 0.95,
-    "min_inliers": 0.8
+    "min_inliers": 0.8,
+    "plausible_cadence_spm": [
+      70.0,
+      150.0
+    ],
+    "plausible_step_m": [
+      0.3,
+      1.0
+    ],
+    "min_fill_ratio": 0.85
   },
   "note": "SIMULATED training data: height enters the simulation only through the assumed rule step length = k x height. Not validated on real DAS data."
 }
