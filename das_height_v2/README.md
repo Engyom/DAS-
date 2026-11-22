@@ -9,7 +9,7 @@ simulated data comes from one assumption (step length = k x height).
 
 ## Layout
     matlab/make_height_dataset.m   MATLAB: simulated passes -> sim_out/*.h5
-    gait_eval/                     T9 Phase A analysis tooling (matching, Bland-Altman, repeatability)
+    gait_eval/                     T9 Phase A analysis tooling + T10 sensitivity study (SIMULATED)
     exploratory/load_identifiability/  T11 weight/load identifiability study (SIMULATED, no model)
     integration/                   estimate_height + saved SIMULATED models for the team's MATLAB system (see integration/README.md)
     das_height/schema.py           common DASRecord (sim and FEBUS)

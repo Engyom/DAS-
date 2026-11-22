@@ -68,3 +68,70 @@ contact, the expected energy-window lag).
    walker's, not the sensor's. Cadence and speed SDs are large only because
    the generator draws a new cadence for every pass (95–125 spm); with a
    metronome in Phase A they will be much smaller.
+
+---
+
+# T10 — gait sensitivity study (SIMULATED)
+
+`sensitivity.py` sweeps one factor at a time around a baseline (spacing 0.4 m,
+gauge length 0.8 m, lane 1 m, default noise, cadence 95–125 steps/min) plus a
+noise × lane grid; 12 passes per setting, seed 7. Errors are DAS vs the **true**
+simulated footsteps (sensor + pipeline only). Gauge length is not swept
+(research plan 6.1); for the spacing sweep it is the smallest whole multiple of
+the spacing ≥ 0.8 m, so per-channel noise is the same at every spacing.
+Output: `results_sensitivity/` (`sensitivity.csv`, `sensitivity.png`).
+Run: `python -m gait_eval.sensitivity` (about 3 min).
+
+All results are conditional on the generator (white noise, ideal gauge, one
+homogeneous ground). They show where the method breaks in this model, not how
+well it works in the field.
+
+## Where it works
+| Factor | Result |
+|---|---|
+| Channel spacing 0.25 → 2 m | Stride error SD ≤ 1.7 cm at every spacing and lane 0.5–2 m (indirect stride = speed × step period averages over many steps). Localisation SD grows: 1.7–6.8 cm at 0.4 m, 20–39 cm at 2 m |
+| Lane distance 0.5 → 3 m (default noise) | Detection SNR falls from 27.7 to 12.8 dB; QC 100 %, recall 100 %, stride SD ≤ 1.2 cm throughout |
+| Cadence 90 → 140 steps/min | Recall 100 %, precision ≥ 99.2 %, stride SD ≤ 0.7 cm |
+| Noise ×0.5 → ×16 (lane 1 m) | Works down to ×4 (SNR 12.2 dB); at ×8 (9.3 dB) recall falls to 6 % and no pass passes QC. The cliff sits at the detection threshold (8 × noise floor = 9.0 dB) |
+
+Operating rule for Phase 0 (task T16): measure the detection SNR with
+`detection_snr_db` on real taps and walks; in this model the method needs
+≳ 12 dB, and the grid shows the lane distance at which that is reached for
+each noise level.
+
+## Two failure modes of the v2.1 pipeline (found here, not fixed)
+1. **Too much signal: band-pass ringing becomes footsteps.** At noise ×0.5
+   (SNR 29 dB), 3 of 12 passes doubled their cadence (+94 to +96 steps/min)
+   and stride error was −74 to −80 cm, yet they passed QC. The zero-phase
+   2–60 Hz Butterworth band-pass makes envelope side-lobes 0.28 s before and
+   0.41 s after each footstep, about 24 dB below it (none in the raw
+   envelope). Once a footstep is ~33 dB above the noise floor, the side-lobes
+   cross the 9 dB threshold; they are more than the 0.3 s minimum separation
+   away, so they are kept, and they lie on the walker's track, so the robust
+   fit keeps them too. The same effect already lowers precision to 94–99.5 %
+   at lane 0.5 m with default noise (vs 100 % at 1 m). Real recordings close to the fibre or in
+   quiet periods may well have this much SNR.
+2. **Too little signal: regularly missed footsteps pass QC.** At noise ×4,
+   lane 1.5 m, recall is 54 % but every pass passes QC (stride RMSE 21 cm here,
+   65 cm with another seed); at ×2, lane 3 m, a quarter pass with errors near
+   280 cm. When every other footstep is missed, the step period is read as
+   twice the true one; the remaining footsteps still lie on a clean line, so
+   the v2.1 QC (≥ 8 steps, R² ≥ 0.95, ≥ 80 % inliers) cannot see it.
+
+## Candidate fixes (checked, NOT applied — need approval as v2.2)
+`candidate_fixes_check.py` post-processes v2.1 output (20 passes per setting):
+
+| Setting | v2.1 | + dominance filter | + plausibility QC | both |
+|---|---|---|---|---|
+| Baseline | 0.49 cm (QC 100 %) | 0.49 | 0.49 | 0.49 |
+| Noise ×0.5 | 16.8 cm (100 %) | **0.41 (100 %)** | 0.87 (95 %) | 0.41 (100 %) |
+| Noise ×4, lane 1.5 m | 65.2 cm (100 %) | 65.2 | **2.8 (75 %)** | 2.8 (75 %) |
+| Noise ×2, lane 3 m | 408 cm (45 %) | 408 | **8.1 (5 %)** | 8.1 (5 %) |
+
+Stride RMSE (QC pass rate). Dominance filter: drop a detection more than 15 dB
+below the envelope maximum within ±0.45 s. Plausibility QC: cadence 70–150
+steps/min and step length 0.3–1.0 m. The plausibility ranges are a judgment
+for walking; running intruders exceed 150 steps/min, so for security use the
+gate should flag rather than discard. Both changes leave the baseline
+unchanged. Decision needed before Phase A: adopt them as v2.2 (v2.1 stays
+tagged as the simulation baseline).

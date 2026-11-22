@@ -76,3 +76,30 @@ def test_sim_truth_replay_matches_generator_and_restores_spacing():
     _, L, cad = sim_py.simulate_pass(1.70, 0.415, 1.0, 0.8, np.random.default_rng(5))
     assert truth["step_length_m"] == pytest.approx(L) and truth["cadence_spm"] == pytest.approx(cad)
     assert np.all(np.diff(truth["positions"]) == pytest.approx(L))
+
+
+# ---------------------------------------------------------------- T10
+from gait_eval.sensitivity import detection_snr_db, gauge_for, generator, run_setting
+
+
+def test_gauge_is_whole_multiple_of_spacing():
+    assert [gauge_for(d) for d in (0.25, 0.4, 0.5, 1.0, 2.0)] == [1.0, 0.8, 1.0, 1.0, 2.0]
+
+
+def test_generator_settings_are_restored():
+    old = (sim_py.P["dx"], sim_py.P["noise"], sim_py.G["cad_range"])
+    with generator(2.0, noise_mult=4.0, cadence=130.0):
+        assert sim_py.P["dx"] == 2.0 and sim_py.G["cad_range"] == (130.0, 130.0)
+    assert (sim_py.P["dx"], sim_py.P["noise"], sim_py.G["cad_range"]) == old
+
+
+def test_detection_snr_falls_with_noise_and_setting_runs():
+    rng = np.random.default_rng(9)
+    snr = []
+    for nm in (1.0, 4.0):
+        with generator(0.4, nm):
+            rec, truth = simulate_pass_with_truth(1.7, 0.415, 1.0, 0.8, rng)
+        snr.append(detection_snr_db(rec, truth["times"] + 0.055))
+    assert snr[0] - snr[1] == pytest.approx(20 * np.log10(4), abs=2.0)   # energy SNR: -12 dB for 4x noise
+    rows, det = run_setting(2, np.random.default_rng(1), 0.4, 0.8, 1.0)
+    assert len(rows) == 2 and det["recall"] > 0.9

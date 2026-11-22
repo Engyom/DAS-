@@ -15,6 +15,7 @@ analysis (exploratory/), never as a weight model.
                                  saved SIMULATED models, stubs); imports das_height, never changes it
 - exploratory/load_identifiability/ : T11 weight/load identifiability study (no model trained)
 - gait_eval/                    : T9 Phase A analysis tooling (matching, Bland-Altman, repeatability)
+                                 and T10 sensitivity study (sensitivity.py, results_sensitivity/)
 
 ## Hard rules
 1. Work ONLY inside this folder (das_height_v2). Never read-modify-write the

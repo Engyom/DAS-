@@ -1,0 +1,13 @@
+{
+  "label": "SIMULATED",
+  "passes_per_setting": 12,
+  "seed": 7,
+  "baseline": {
+    "dx": 0.4,
+    "gl": 0.8,
+    "lane": 1.0,
+    "noise_mult": 1.0,
+    "cadence": null
+  },
+  "note": "Sensor + pipeline error vs true simulated footsteps; conditional on the generator model."
+}

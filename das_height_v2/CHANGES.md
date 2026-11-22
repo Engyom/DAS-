@@ -228,3 +228,18 @@ recovered by replaying its random draws).
   say point estimate vs CI bound; +0.2 m localisation shift is a generator
   artefact of even gl/dx averaging (Python mirror), not a pipeline error.
 - `tests/test_gait_eval.py`: 6 tests. Full suite: 43 passed.
+
+# T10 (22 Nov 2026): gait sensitivity study (SIMULATED)
+
+`gait_eval/sensitivity.py`, `gait_eval/candidate_fixes_check.py`, results in
+`gait_eval/results_sensitivity/`; pipeline unchanged.
+- Stride error SD <= 1.7 cm for spacing 0.25-2 m and lanes 0.5-2 m; works to
+  lane 3 m at default noise; cadence 90-140 fine; noise cliff at detection
+  SNR ~9-12 dB (threshold 8 x floor = 9 dB).
+- Two v2.1 failure modes, both passing QC: (1) high SNR (>~33 dB peak):
+  band-pass ringing side-lobes (-24 dB, -0.28/+0.41 s) detected as footsteps,
+  cadence doubled; (2) low SNR: regularly missed footsteps read as a doubled
+  step period.
+- Candidate fixes checked, not applied: dominance filter (-15 dB within
+  +/-0.45 s) and a cadence/step-length plausibility QC. Need approval as v2.2.
+- 3 new tests; full suite 46 passed.
