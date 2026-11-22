@@ -9,6 +9,7 @@ simulated data comes from one assumption (step length = k x height).
 
 ## Layout
     matlab/make_height_dataset.m   MATLAB: simulated passes -> sim_out/*.h5
+    integration/                   estimate_height + saved SIMULATED models for the team's MATLAB system (see integration/README.md)
     das_height/schema.py           common DASRecord (sim and FEBUS)
     das_height/io_sim.py           read MATLAB HDF5 (transposes column-major)
     das_height/io_febus.py         read FEBUS A1 via xdas (UNTESTED)

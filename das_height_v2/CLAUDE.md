@@ -10,6 +10,8 @@ estimation is out of scope for now.
 - matlab/make_height_dataset.m : MATLAB generator of SIMULATED passes (HDF5)
 - das_height/                  : Python pipeline (footsteps, features, ridge/GPR, LOSO)
 - tests/                       : pytest suite + tools; see CHANGES.md and README.md
+- integration/                 : interface for the team's MATLAB system (estimate_height,
+                                 saved SIMULATED models, stubs); imports das_height, never changes it
 
 ## Hard rules
 1. Work ONLY inside this folder (das_height_v2). Never read-modify-write the

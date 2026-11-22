@@ -1,0 +1,43 @@
+{
+  "model": "steplength_linear",
+  "model_version": "steplength_linear@v2.1-sim-baseline",
+  "features": [
+    "step_length_m"
+  ],
+  "mean": [
+    0.0
+  ],
+  "scale": [
+    1.0
+  ],
+  "coef": [
+    89.27692323565492
+  ],
+  "intercept": 104.43678914615207,
+  "alpha": null,
+  "uncertainty_cm": 7.224663925644851,
+  "uncertainty_note": "LOSO pass-level RMSE on SIMULATED data; a typical error size, not a per-person uncertainty",
+  "data_label": "SIMULATED",
+  "pipeline_version": "v2.1-sim-baseline",
+  "trained_on": {
+    "features_csv_sha256": "30ad5e94f2c46a7a99200f087394f03d8bd3028dc68187e2d1bfde035385e4d2",
+    "n_passes": 180,
+    "n_subjects": 30,
+    "height_cm_range": [
+      150.05733269001672,
+      179.89843690214107
+    ],
+    "feature_range": {
+      "step_length_m": [
+        0.5865077669520857,
+        0.8396999350712862
+      ]
+    }
+  },
+  "qc": {
+    "min_steps": 8,
+    "min_r2": 0.95,
+    "min_inliers": 0.8
+  },
+  "note": "SIMULATED training data: height enters the simulation only through the assumed rule step length = k x height. Not validated on real DAS data."
+}

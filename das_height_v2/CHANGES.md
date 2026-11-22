@@ -173,3 +173,27 @@ the v2 code (verified); the second is a guard and passes on both.
   between two real steps (mostly 0.5 m lane, slow cadence) and 60 are real
   footsteps localised slightly off the walking line. Fix 2 keeps all of
   them out of the features; the detector itself was not changed.
+
+# integration v0.1 (22 Nov 2026): T12, interface for the team's MATLAB system
+
+New files only; `das_height/`, `matlab/` and the frozen v2.1 results are unchanged.
+
+- `integration/fit_sim_models.py`: fits `steplength_linear` and `ridge` on all
+  180 SIMULATED passes (`../sim_scratch/features.csv`, same QC and subject
+  weights as `train_eval.py`) and saves them as JSON in `integration/models/`.
+  The saved ridge equals the v2.1 full fit in `metrics.json` (alpha 0.001,
+  intercept 95.22 cm, 88.61 cm per m of step length).
+- `integration/estimate_height.py` and `integration/bridge.py`: the agreed
+  interface. `estimate_height` returns 11 fields (height_cm, uncertainty_cm,
+  n_steps, qc_pass, qc_reason, speed_mps, cadence_spm, stride_m, direction,
+  model_version, data_label). Default model: step length only (ridge also uses
+  step-length CV, which is noise at coarse spacing or on real data).
+  `uncertainty_cm` = LOSO pass-level RMSE on SIMULATED data (7.22 / 7.16 cm).
+  `classify_event` and `profile_person` are clearly marked STUBS.
+- `tests/test_integration.py`: 9 tests (fields, QC pass/fail, gait recovery,
+  direction, input checks, JSON models reproduce scikit-learn, labels, bridge).
+  Full suite: 31 passed (Linux, Python 3.13).
+- `integration/matlab_example.m`: MATLAB call example, **untested in MATLAB**.
+- Limits: needs a walk parallel to the fibre with >= 8 validated footsteps
+  (fibre crossings fail QC); oblique paths shorten stride by cos(angle); models
+  are SIMULATED only.

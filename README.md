@@ -143,7 +143,7 @@ with leave-one-subject-out evaluation (about 1 minute) and writes
 ```bash
 python -m pytest tests
 ```
-Expected: **22 passed**. They need no MATLAB and no data files.
+Expected: **31 passed** (22 pipeline + 9 integration). They need no MATLAB and no data files.
 Simulated planning study (not a test):
 `python tests/synthetic_study.py 30 1.0 1.50 1.80 0.02`.
 
@@ -184,6 +184,14 @@ window. The script finds `das_height_v2/` next to `sim_scratch/` by itself
 R^2 is computed from `predictions.csv`; the rest is in `metrics.json`.
 These numbers show the pipeline recovering the simulation's own assumption;
 they are **not** real-world accuracy.
+
+## Integration with the team's MATLAB system (T12)
+`das_height_v2/integration/` provides the agreed interface: `estimate_height(record)`
+(11 fields: height_cm, uncertainty_cm, n_steps, qc_pass, qc_reason, speed_mps,
+cadence_spm, stride_m, direction, model_version, data_label), models saved as JSON
+(trained on the 180 SIMULATED passes), and stubs for `classify_event` and
+`profile_person`. Details, limits and the MATLAB example: `das_height_v2/integration/README.md`.
+Tests: `python -m pytest tests` (31 passed).
 
 ## 10. Current status, assumptions and limitations
 - **Assumptions:** step length = k x height, with k ~ N(0.415, 0.02) per
