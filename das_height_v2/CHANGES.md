@@ -212,3 +212,19 @@ of v2.1 or integration v0.1 is changed. SIMULATED + ASSUMED, no model trained.
   amplitude change (≈ +8–10 kg) is detectable in the best case. Crossing
   intruders give no separable weight information.
 - `tests/test_load_identifiability.py`: 6 tests. Full suite: 37 passed.
+
+# T9 (22 Nov 2026): Phase A gait analysis tooling
+
+New folder `gait_eval/`; the frozen pipeline, integration layer and earlier
+results are unchanged. `tests/sim_py.py` is not modified (ground truth is
+recovered by replaying its random draws).
+- Footstep matching (dry-run offset, one-to-one +/-50 ms, tolerance sweep),
+  repeated-measures Bland-Altman with MOVER CIs, proportional bias,
+  repeatability coefficient.
+- SIMULATED tooling check (4 participants x 3 lanes x 3 passes, 0.4 m / 0.8 m):
+  recall 99.9 % / precision 99.1 % at 50 ms (84 % at 25 ms); stride LoA within
+  the provisional thresholds; cadence LoA meets +/-2 spm only as a point
+  estimate (far CI bound 2.6 spm). Findings: per-lane offset needed; D3 must
+  say point estimate vs CI bound; +0.2 m localisation shift is a generator
+  artefact of even gl/dx averaging (Python mirror), not a pipeline error.
+- `tests/test_gait_eval.py`: 6 tests. Full suite: 43 passed.

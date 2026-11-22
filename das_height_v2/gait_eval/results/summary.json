@@ -1,0 +1,23 @@
+{
+  "label": "SIMULATED",
+  "note": "Tooling check on simulated passes; not evidence of real-world accuracy.",
+  "design": {
+    "participants": 4,
+    "lanes_m": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "reps": 3,
+    "dx_m": 0.4,
+    "gauge_length_m": 0.8,
+    "seed": 11,
+    "ref_time_sd_s [Assumption]": 0.005,
+    "ref_pos_sd_m [Assumption]": 0.01
+  },
+  "dry_run_offset_ms": 57.08632587155815,
+  "detection_at_50ms": {
+    "recall": 0.9988365328679465,
+    "precision": 0.9913394919168591
+  }
+}
